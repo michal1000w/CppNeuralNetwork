@@ -660,7 +660,7 @@ void NeuralNetwork::print_synaptic_weights() {
 
 int main() {
 #define a new double
-	NeuralNetwork neural_net(3,2);
+	NeuralNetwork neural_net(2,2);
 
 	cout << "Random starting synaptic weights: " << endl;
 	neural_net.print_synaptic_weights();
@@ -668,9 +668,10 @@ int main() {
 
 
 	Matrix training_inputs;
-	training_inputs.add("[0,0,1][1,1,1][1,0,0][0,1,1]");
+	training_inputs.add("[1,5][1,6][1,4.5][1,5.25][1,4] [0,12][0,0.14][0,13][0,13.5][0,17]");
+	training_inputs = training_inputs.sigmoid(); ///test
 	Matrix training_outputs;
-	training_outputs.add("[1,0,1,1][0,1,0,0]");
+	training_outputs.add("[1,1,1,1,1,0,0,0,0,0] [0,0,0,0,0,1,1,1,1,1]");
 	training_outputs = training_outputs.T();
 
 	//////////Trening
@@ -679,7 +680,7 @@ int main() {
 	start = std::clock();
 	cout << "Rozpoczynam trening..." << endl;
 
-		neural_net.train(training_inputs, training_outputs, 10000);
+		neural_net.train(training_inputs, training_outputs, 100000);
 
 	durationTh = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	cout << "Zakonczono pomyslnie w czasie: [" << durationTh << "] s" << endl << endl;
@@ -689,31 +690,37 @@ int main() {
 	neural_net.print_synaptic_weights();
 	cout << endl;
 
-	cout << "Considering new situation [1,0,0]" << endl;
-	Matrix nowa(3);
-	nowa.add(1, a[3]{ 1,0,0 });
+	cout << "Considering new situation [1,3]" << endl;
+	Matrix nowa;
+	nowa.add("[1,3]");
+	nowa = nowa.sigmoid();
 	neural_net.think(nowa).print(0);
 	cout << endl;
 
-	cout << "Considering [0,0,0]" << endl;
-	nowa.add(1, a[3]{ 0,0,0 });
+	cout << "Considering [0,5]" << endl;
+	nowa.add("[0,5]");
+	nowa = nowa.sigmoid();
 	neural_net.think(nowa).print(0);
 	cout << endl;
 
-	cout << "Considering [1,1,0]" << endl;
-	nowa.add(1, a[3]{ 1,1,0 });
+	cout << "Considering [0,12]" << endl;
+	nowa.add("[0,12]");
+	nowa = nowa.sigmoid();
 	neural_net.think(nowa).print(0);
 	cout << endl;
 
-	cout << "Considering [0,1,0]" << endl;
-	nowa.add(1, a[3]{ 0,1,0 });
+	cout << "Considering [1,32]" << endl;
+	nowa.add("[1,32]");
+	nowa = nowa.sigmoid();
 	neural_net.think(nowa).print(0);
 	cout << endl;
 
-	cout << "Considering [1,1,1]" << endl;
-	nowa.add("[1,1,1]");
+	cout << "Considering [0,1]" << endl;
+	nowa.add("[0,1]");
+	nowa = nowa.sigmoid();
 	neural_net.think(nowa).print(0);
 	cout << endl;
+
 
 	_getch();
 }
