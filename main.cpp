@@ -563,7 +563,8 @@ void Matrix::print(short roundness) {
 
 class NeuralNetwork{
 public:
-	NeuralNetwork(unsigned int,unsigned int neuron_count = 1, int seed = 1);
+	NeuralNetwork(unsigned int,unsigned int, int seed = 1);
+	NeuralNetwork(unsigned int);
 	double drand(double, double);
 	void train(Matrix, Matrix, unsigned int);
 	Matrix think(Matrix);
@@ -607,6 +608,35 @@ NeuralNetwork::NeuralNetwork(unsigned int neuron_inputs, unsigned int neuron_cou
 	srand(seed);
 	this->neuron_count = neuron_count;
 	this->neuron_inputs = neuron_inputs;
+
+	this->synaptic_weights = new Matrix(neuron_inputs);
+
+	string weights = "";
+	string liczba = "";
+	for (int j = 0; j < neuron_count; j++) {
+		weights += '[';
+		for (int i = 0; i < neuron_inputs; i++) {
+			liczba = to_string(this->drand(0, 2) - 1);
+			for (int z = 0; z < liczba.size(); z++)
+				weights += liczba[z];
+			weights += (i == neuron_count ? ' ' : ',');
+		}
+		weights += ']';
+	}
+
+	//cout << "Wagi: " << weights << endl;
+
+	this->synaptic_weights->add(weights);
+
+	synaptic_weights = synaptic_weights->t();
+}
+
+NeuralNetwork::NeuralNetwork(unsigned int neuron_inputs) {
+	unsigned int neuron_count = 1;
+	int seed = 1;
+	srand(seed);
+	this->neuron_count = neuron_count;
+	this->neuron_inputs = neuron_inputs;
 	this->synaptic_weights = new Matrix(neuron_inputs);
 
 	double* arr = new double[neuron_inputs];
@@ -630,15 +660,17 @@ void NeuralNetwork::print_synaptic_weights() {
 
 int main() {
 #define a new double
-	NeuralNetwork neural_net(3);
+	NeuralNetwork neural_net(3,2);
 
 	cout << "Random starting synaptic weights: " << endl;
 	neural_net.print_synaptic_weights();
+	cout << endl;
+
 
 	Matrix training_inputs;
 	training_inputs.add("[0,0,1][1,1,1][1,0,0][0,1,1]");
 	Matrix training_outputs;
-	training_outputs.add("[0,0,0,1]");
+	training_outputs.add("[1,0,1,1][0,1,0,0]");
 	training_outputs = training_outputs.T();
 
 	//////////Trening
@@ -650,29 +682,38 @@ int main() {
 		neural_net.train(training_inputs, training_outputs, 10000);
 
 	durationTh = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	cout << "Zakonczono pomyslnie w czasie: [" << durationTh << "] s" << endl;
+	cout << "Zakonczono pomyslnie w czasie: [" << durationTh << "] s" << endl << endl;
 	//////////Koniec
 
 	cout << "New synaptic weights after training: " << endl;
 	neural_net.print_synaptic_weights();
+	cout << endl;
 
 	cout << "Considering new situation [1,0,0]" << endl;
 	Matrix nowa(3);
 	nowa.add(1, a[3]{ 1,0,0 });
-	neural_net.think(nowa).print(4);
+	neural_net.think(nowa).print(0);
+	cout << endl;
 
 	cout << "Considering [0,0,0]" << endl;
 	nowa.add(1, a[3]{ 0,0,0 });
-	neural_net.think(nowa).print(2);
+	neural_net.think(nowa).print(0);
+	cout << endl;
 
 	cout << "Considering [1,1,0]" << endl;
 	nowa.add(1, a[3]{ 1,1,0 });
-	neural_net.think(nowa).print(2);
+	neural_net.think(nowa).print(0);
+	cout << endl;
 
 	cout << "Considering [0,1,0]" << endl;
 	nowa.add(1, a[3]{ 0,1,0 });
 	neural_net.think(nowa).print(0);
+	cout << endl;
 
+	cout << "Considering [1,1,1]" << endl;
+	nowa.add("[1,1,1]");
+	neural_net.think(nowa).print(0);
+	cout << endl;
 
 	_getch();
 }
