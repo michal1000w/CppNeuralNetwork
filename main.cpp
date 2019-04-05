@@ -19,10 +19,12 @@ public:
 	void add(const double*, ...);
 	void add(unsigned int, ...);
 	void add(string);
-	void print();
-	void print(short);
+	Matrix print();
+	Matrix print(short);
 	Matrix T();
 	Matrix* t();
+
+	double** getArray();
 
 	//funkcjonalnoœæ pod AI
 	Matrix expa(bool inverted = 0);
@@ -46,6 +48,22 @@ private:
 	unsigned int liczba_elementow;
 	double** arrays;
 };
+
+double** Matrix::getArray() {
+	unsigned int y = this->liczba_macierzy;
+	unsigned int x = this->liczba_elementow;
+
+	double** newArray = new double*[y];
+	for (int i = 0; i < y; i++) newArray[i] = new double[x];
+
+	for (int j = 0; j < y; j++) {
+		for (int i = 0; i < x; i++) {
+			newArray[j][i] = this->arrays[j][i];
+		}
+	}
+
+	return newArray;
+}
 
 Matrix Matrix::expa(bool inverted) {
 	unsigned int y = this->liczba_macierzy;
@@ -525,7 +543,7 @@ void Matrix::add(string macierz) {
 	wartosci.clear();
 }
 
-void Matrix::print() {
+Matrix Matrix::print() {
 	for (int i = 0; i < this->liczba_macierzy; i++) {
 		cout << "[";
 		for (int j = 0; j < this->liczba_elementow; j++) {
@@ -533,6 +551,7 @@ void Matrix::print() {
 		}
 		cout << " ]" << endl;
 	}
+	return Matrix(this->liczba_macierzy, this->liczba_elementow, this->arrays);
 }
 
 unsigned int power(short inp) {
@@ -542,7 +561,7 @@ unsigned int power(short inp) {
 	return output;
 }
 
-void Matrix::print(short roundness) {
+Matrix Matrix::print(short roundness) {
 	int pomocnicza = 0;
 	roundness = (roundness < 5 ? roundness : 4);
 	for (int i = 0; i < this->liczba_macierzy; i++) {
@@ -557,6 +576,7 @@ void Matrix::print(short roundness) {
 		}
 		cout << " ]" << endl;
 	}
+	return Matrix(this->liczba_macierzy, this->liczba_elementow, this->arrays);
 }
 
 
@@ -569,11 +589,52 @@ public:
 	void train(Matrix, Matrix, unsigned int);
 	Matrix think(Matrix);
 	void print_synaptic_weights();
+	void print_names();
+	void add_names(string);
+	void print_classified();
 protected:
 	unsigned int neuron_count;
 	unsigned int neuron_inputs;
 	Matrix* synaptic_weights;
+	Matrix wynik;
+	vector <string> nazwy;
 };
+
+void NeuralNetwork::print_classified() {
+	unsigned int klasy = this->neuron_count;
+
+	for (int i = 0; i < klasy; i++) {
+		if (this->wynik.getArray()[0][i] > 0.5) cout << "[ " << this->nazwy[i] << " ] ";
+	}
+	cout << endl;
+}
+
+void NeuralNetwork::print_names() {
+	cout << "Stored names: ";
+	for (int i = 0; i < this->nazwy.size(); i++) {
+		cout << "[ " << this->nazwy[i] << " ] ";
+	}
+	cout << endl;
+}
+
+void NeuralNetwork::add_names(string input) {
+	//Podzia³ na pojedyñcze macierze (fragmenty)
+	unsigned int len = input.length();
+	string fragment = "";
+
+	for (unsigned int i = 0; i < len; i++) {
+		if (input[i] == '[') {
+			fragment = "";
+			do {
+				i++;
+				if (input[i] == ']') break;
+
+				fragment += input[i];
+			} while (i < len - 1);
+			this->nazwy.push_back(fragment);
+		}
+	}
+}
 
 void NeuralNetwork::train(Matrix training_inputs, Matrix training_outputs, unsigned int iterations) {
 	Matrix output(3);
@@ -601,7 +662,8 @@ void NeuralNetwork::train(Matrix training_inputs, Matrix training_outputs, unsig
 }
 
 Matrix NeuralNetwork::think(Matrix inputs) {
-	return (inputs * synaptic_weights).sigmoid();
+	this->wynik = (inputs * synaptic_weights).sigmoid();
+	return this->wynik;
 }
 
 NeuralNetwork::NeuralNetwork(unsigned int neuron_inputs, unsigned int neuron_count , int seed) {
@@ -674,6 +736,9 @@ int main() {
 	training_outputs.add("[1,1,1,1,1,0,0,0,0,0] [0,0,0,0,0,1,1,1,1,1]");
 	training_outputs = training_outputs.T();
 
+	neural_net.add_names("[japko][pomarancz]");
+	//neural_net.print_names();
+
 	//////////Trening
 	std::clock_t start;
 	double durationTh;
@@ -695,30 +760,39 @@ int main() {
 	nowa.add("[1,3]");
 	nowa = nowa.sigmoid();
 	neural_net.think(nowa).print(0);
+	neural_net.print_classified();
 	cout << endl;
 
 	cout << "Considering [0,5]" << endl;
 	nowa.add("[0,5]");
 	nowa = nowa.sigmoid();
 	neural_net.think(nowa).print(0);
+	neural_net.print_classified();
 	cout << endl;
 
 	cout << "Considering [0,12]" << endl;
 	nowa.add("[0,12]");
 	nowa = nowa.sigmoid();
 	neural_net.think(nowa).print(0);
+	neural_net.print_classified();
 	cout << endl;
 
 	cout << "Considering [1,32]" << endl;
 	nowa.add("[1,32]");
 	nowa = nowa.sigmoid();
 	neural_net.think(nowa).print(0);
+	neural_net.print_classified();
 	cout << endl;
 
 	cout << "Considering [0,1]" << endl;
 	nowa.add("[0,1]");
 	nowa = nowa.sigmoid();
 	neural_net.think(nowa).print(0);
+	neural_net.print_classified();
+	cout << endl;
+
+
+
 	cout << endl;
 
 
