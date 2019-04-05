@@ -379,13 +379,17 @@ Matrix Matrix::operator *(const double& rhs) {
 		int y1 = this->liczba_macierzy;
 		int x1 = this->liczba_elementow;
 
+		double** newArray = new double*[y1];
+		for (int i = 0; i < y1; i++)
+			newArray[i] = new double[x1];
+
 		for (int y = 0; y < y1; y++) {
 			for (int x = 0; x < x1; x++) {
-				this->arrays[y][x] = this->arrays[y][x] * rhs;
+				newArray[y][x] = this->arrays[y][x] * rhs;
 			}
 		}
 
-		return Matrix(y1, x1, this->arrays);
+		return Matrix(y1, x1, newArray);
 }
 
 Matrix::Matrix(unsigned int liczba_macierzy, unsigned int liczba_elementow, double** arrays) {
