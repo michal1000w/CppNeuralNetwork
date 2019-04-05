@@ -17,6 +17,7 @@ public:
 	void add(const double*, ...);
 	void add(unsigned int, ...);
 	void print();
+	void print(short);
 	Matrix T();
 	Matrix* t();
 
@@ -460,6 +461,30 @@ void Matrix::print() {
 	}
 }
 
+unsigned int power(short inp) {
+	unsigned int output = 1;
+	for (short i = 0; i < inp; i++)
+		output *= 10;
+	return output;
+}
+
+void Matrix::print(short roundness) {
+	int pomocnicza = 0;
+	roundness = (roundness < 5 ? roundness : 4);
+	for (int i = 0; i < this->liczba_macierzy; i++) {
+		cout << "[";
+		for (int j = 0; j < this->liczba_elementow; j++) {
+			if (roundness != 0) {
+				pomocnicza = (float)arrays[i][j] * power(roundness);
+				cout << " " << ((float)pomocnicza / power(roundness));
+			}
+			else
+				cout << " " << round(arrays[i][j]);
+		}
+		cout << " ]" << endl;
+	}
+}
+
 
 
 class NeuralNetwork{
@@ -537,10 +562,10 @@ int main() {
 	neural_net.print_synaptic_weights();
 
 	Matrix training_inputs(3);
-	training_inputs.add(8,  a[3]{ 0,0,1 }, a[3]{ 1,1,1 }, a[3]{ 1,0,1 }, a[3]{ 0,1,1 },
-							a[3]{ 1,0,0 }, a[3]{ 0,1,0 }, a[3]{ 0,0,0 }, a[3]{ 0,0,0 });
-	Matrix training_outputs(8);
-	training_outputs.add(1, a[8]{ 0,1,1,1,0,0,0,0 });
+	training_inputs.add(4, a[3]{ 0,0,1 }, a[3]{ 1,1,1 }, a[3]{ 1,0,0 }, a[3]{ 0,1,1 });
+							//a[3]{ 1,0,0 }, a[3]{ 0,1,0 }, a[3]{ 0,0,0 }, a[3]{ 1,1,0 });
+	Matrix training_outputs(4);
+	training_outputs.add(1, a[4]{ 0,0,0,1 });
 	training_outputs = training_outputs.T();
 
 	//////////Trening
@@ -561,7 +586,19 @@ int main() {
 	cout << "Considering new situation [1,0,0]" << endl;
 	Matrix nowa(3);
 	nowa.add(1, a[3]{ 1,0,0 });
-	neural_net.think(nowa).print();
+	neural_net.think(nowa).print(4);
+
+	cout << "Considering [0,0,0]" << endl;
+	nowa.add(1, a[3]{ 0,0,0 });
+	neural_net.think(nowa).print(2);
+
+	cout << "Considering [1,1,0]" << endl;
+	nowa.add(1, a[3]{ 1,1,0 });
+	neural_net.think(nowa).print(2);
+
+	cout << "Considering [0,1,0]" << endl;
+	nowa.add(1, a[3]{ 0,1,0 });
+	neural_net.think(nowa).print(0);
 
 	_getch();
 }
