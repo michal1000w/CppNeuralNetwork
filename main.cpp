@@ -2,10 +2,11 @@
 #include <cmath>
 #include <conio.h>
 #include <ctime>
+#include <vector>
+#include <string>
 
 
 using namespace std;
-
 
 class Matrix {
 public:
@@ -14,8 +15,10 @@ public:
 	Matrix(unsigned int, unsigned int, double**);
 	Matrix(unsigned int, unsigned int);
 	Matrix(unsigned int);
+	Matrix();
 	void add(const double*, ...);
 	void add(unsigned int, ...);
+	void add(string);
 	void print();
 	void print(short);
 	Matrix T();
@@ -411,6 +414,12 @@ Matrix::Matrix(unsigned int liczba_elementow) {
 	this->arrays = nullptr;
 }
 
+Matrix::Matrix() {
+	this->liczba_elementow = 0;
+	this->liczba_macierzy = 0;
+	this->arrays = nullptr;
+}
+
 void Matrix::initMatrix() {
 	this->arrays = new double*[liczba_macierzy];
 	for (int i = 0; i < liczba_macierzy; i++) {
@@ -449,6 +458,71 @@ void Matrix::add(const double *macierz, ...) {
 		j++;
 
 	} __crt_va_end(arguments);
+}
+
+void Matrix::add(string macierz) {
+	//"[1,2,1.4][3,9,3][41,2,55]"
+
+	//Podzia³ na pojedyñcze macierze (fragmenty)
+	unsigned int len = macierz.length();
+	string fragment = "";
+	vector <string> fragmenty;
+
+	for (unsigned int i = 0; i < len; i++) {
+		if (macierz[i] == '[') {
+			fragment = "";
+			do {
+				i++;
+				if (macierz[i] == ']') break;
+
+				fragment += macierz[i];
+			} while (i < len - 1);
+			fragmenty.push_back(fragment);
+		}
+	}
+
+	//cout << "Fragmenty: "; for (int i = 0; i < fragmenty.size(); i++) cout << fragmenty[i] << " ; "; cout << endl;
+
+	this->liczba_macierzy = fragmenty.size();
+
+	//Podzia³ fragmentów na pojedyñcze elementy i sprawdzenie iloœci elementów
+	vector <double> wartosci;
+	short elementy = 0;
+
+	for (int i = 0; i < this->liczba_macierzy; i++) {
+		len = fragmenty[i].size(); //d³ugoœæ stringa
+		
+		for (int j = 0; j < len; j++) {
+			fragment = "";
+			while (fragmenty[i][j] != ',' && j < len) {
+				fragment += fragmenty[i][j];
+				j++;
+			}
+			wartosci.push_back(stod(fragment, string::size_type()));
+		}
+
+		if (i == 0) elementy = wartosci.size();
+	}
+
+	//cout << "Wartosci: "; for (int i = 0; i < wartosci.size(); i++) cout << wartosci[i] << " ; "; cout << endl;
+
+	this->liczba_elementow = elementy;
+
+	//Inicjowanie nowej macierzy typu Matrix
+	this->initMatrix();
+
+	//Przenoszenie elementów z vector do macierzy typu Matrix
+	int i = 0;
+	for (int y = 0; y < this->liczba_macierzy; y++) {
+		for (int x = 0; x < this->liczba_elementow; x++) {
+			this->arrays[y][x] = wartosci[i];
+			i++;
+		}
+	}
+
+	//czyszczenie pamiêci
+	fragmenty.clear();
+	wartosci.clear();
 }
 
 void Matrix::print() {
@@ -561,11 +635,10 @@ int main() {
 	cout << "Random starting synaptic weights: " << endl;
 	neural_net.print_synaptic_weights();
 
-	Matrix training_inputs(3);
-	training_inputs.add(4, a[3]{ 0,0,1 }, a[3]{ 1,1,1 }, a[3]{ 1,0,0 }, a[3]{ 0,1,1 });
-							//a[3]{ 1,0,0 }, a[3]{ 0,1,0 }, a[3]{ 0,0,0 }, a[3]{ 1,1,0 });
-	Matrix training_outputs(4);
-	training_outputs.add(1, a[4]{ 0,0,0,1 });
+	Matrix training_inputs;
+	training_inputs.add("[0,0,1][1,1,1][1,0,0][0,1,1]");
+	Matrix training_outputs;
+	training_outputs.add("[0,0,0,1]");
 	training_outputs = training_outputs.T();
 
 	//////////Trening
@@ -574,7 +647,7 @@ int main() {
 	start = std::clock();
 	cout << "Rozpoczynam trening..." << endl;
 
-		neural_net.train(training_inputs, training_outputs, 100000);
+		neural_net.train(training_inputs, training_outputs, 10000);
 
 	durationTh = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	cout << "Zakonczono pomyslnie w czasie: [" << durationTh << "] s" << endl;
@@ -599,6 +672,7 @@ int main() {
 	cout << "Considering [0,1,0]" << endl;
 	nowa.add(1, a[3]{ 0,1,0 });
 	neural_net.think(nowa).print(0);
+
 
 	_getch();
 }
