@@ -3,36 +3,8 @@
 #include <conio.h>
 #include <ctime>
 
-//#define func(...) funkcja(__VA_ARGS__, NULL)
 
 using namespace std;
-
-/*
-void funkcja(const char *arg, ...) {
-	va_list arguments;
-	for (__crt_va_start(arguments, arg); arg != NULL; arg = __crt_va_arg(arguments, const char *)) {
-
-
-		cout << arg << endl;
-
-
-	} __crt_va_end(arguments);
-}
-*/
-
-
-/*
-double average(int count, ...){
-	va_list ap;
-	int j;
-	double tot = 0;
-	__crt_va_start(ap, count); //Requires the last fixed parameter (to get the address)
-	for (j = 0; j < count; j++)
-		tot += __crt_va_arg(ap, double); //Requires the type to cast to. Increments ap to the next argument.
-	__crt_va_end(ap);
-	return tot / count;
-}
-*/
 
 
 class Matrix {
@@ -586,83 +558,6 @@ int main() {
 	Matrix nowa(3);
 	nowa.add(1, a[3]{ 1,0,0 });
 	neural_net.think(nowa).print();
-
-
-	/*
-	Matrix arr1(3, 3);
-	arr1.add(a[3]{ 1,2,3 }, a[3]{ 4,5,6 }, a[3]{ 7,7,7 }, NULL);
-	arr1.print();
-	cout << "=========" << endl;
-	Matrix arr2(3);
-	arr2.add(4, a[3]{ 1,1,2 }, a[3]{ 2,2,1 }, a[3]{ 4,5,6 }, a[3]{ 6,5,4 });
-	arr2.print();
-
-	Matrix arr3(3);
-	arr3.add(4, a[3]{ 1,1,1 }, a[3]{ 1,1,1 }, a[3]{ 1,1,1 }, a[3]{ 1,1,1 });
-	cout << "=========" << endl;
-	arr3.print();
-
-	cout << "=========" << endl;
-	cout << "arr3 + arr2" << endl;
-	cout << "=========" << endl;
-	arr3 + arr2;
-	arr3.print();
-
-	cout << "=========" << endl;
-	Matrix b(3);
-	b.add(1, a[3]{ 1,2,3 });
-	Matrix c(1);
-	c.add(3, a[1]{ 1 }, a[1]{ 2 }, a[1]{ 3 });
-	b = c*b;
-	//b = b * c;
-	b.print();
-
-	cout << "=========" << endl;
-	Matrix z(3);
-	z.add(3, a[3]{ 0,1,2 }, a[3]{ 1,3,2 }, a[3]{ 1,2,0 });
-	z = z * z;
-	z.print();
-
-	cout << "=========" << endl;
-	Matrix t1(4);
-	t1.add(3, a[4]{ 1,0,1,3 }, a[4]{ 9,1,4,5 }, a[4]{ 2,-1,2,1 });
-	Matrix t2(2);
-	t2.add(4, a[2]{ -2,0 }, a[2]{ 6,4 }, a[2]{ -3,1 }, a[2]{ 0,2 });
-	t2 = t1 * t2;
-	t2.print();
-
-	cout << "=========" << endl;
-	cout << "odejmowanko" << endl;
-	t2 - t2;
-	t2.print();
-
-	cout << "=========" << endl;
-	cout << "mnozenie przez stala" << endl;
-	cout << "=========" << endl;
-	Matrix m1(3);
-	m1.add(2, a[3]{ 1,2,3 }, a[3]{ 4,5,6 });
-	m1 = m1 * 2;
-	m1.print();
-
-	cout << "=========" << endl;
-	cout << "Transponowanie" << endl;
-	cout << "=========" << endl;
-	m1 = m1.T();
-	m1.print();
-
-	cout << "=========" << endl;
-	m1 = m1 * m1.T();
-	m1.print();
-	*/
-	/*
-	Matrix m1(3);
-	m1.add(1, a[3]{ 1,2,3 });
-	m1.print();
-	cout << endl;
-	m1.sigmoid().print();
-	cout << endl;
-	m1.sigmoid().sigmoid_derivative().print();
-	*/
 
 	_getch();
 }
