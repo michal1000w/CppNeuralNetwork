@@ -774,7 +774,6 @@ NeuralNetwork::NeuralNetwork(unsigned int neuron_inputs) {
 	this->synaptic_weights->add(neuron_count, arr);
 
 	delete[] arr;
-	delete arr;
 
 	synaptic_weights = synaptic_weights->t();
 }
@@ -833,7 +832,7 @@ bool NeuNet::Train() {
 		durationTh = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 		cout << ID << "Succeeded in time: [" << durationTh << "] s" << endl << endl;
 
-		cout << "New synaptic weights after training: " << endl;
+		cout << ID << "New synaptic weights after training: " << endl;
 		neural_net.print_synaptic_weights();
 		cout << endl << endl;
 	}
@@ -901,155 +900,40 @@ void NeuNet::iterations(unsigned int iter) {
 
 
 void Test1() {
-	NeuralNetwork neural_net(2, 2);
+	NeuNet n;
 
-	cout << "Random starting synaptic weights: " << endl;
-	neural_net.print_synaptic_weights();
-	cout << endl;
+	n.input("[1,5][1,6][1,4.5][1,5.25][1,4] [0,12][0,0.14][0,13][0,13.5][0,17]");
+	n.output("[1,1,1,1,1,0,0,0,0,0] [0,0,0,0,0,1,1,1,1,1]");
+	n.labels("[japko][pomaranicz]");
+	n.iterations(1000000);
 
+	n.Setup();
+	n.Train();
 
-	Matrix training_inputs;
-	training_inputs.add("[1,5][1,6][1,4.5][1,5.25][1,4] [0,12][0,0.14][0,13][0,13.5][0,17]");
-	training_inputs = training_inputs.sigmoid(); ///test
-	Matrix training_outputs;
-	training_outputs.add("[1,1,1,1,1,0,0,0,0,0] [0,0,0,0,0,1,1,1,1,1]");
-	training_outputs = training_outputs.T();
-
-	neural_net.add_names("[japko][pomarancz]");
-	//neural_net.print_names();
-
-	//////////Trening
-	std::clock_t start;
-	double durationTh;
-	cout << "Rozpoczynam trening..." << endl;
-	start = std::clock();
-
-	neural_net.train(training_inputs, training_outputs, 1000000);
-
-	durationTh = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	cout << "Zakonczono pomyslnie w czasie: [" << durationTh << "] s" << endl << endl;
-	//////////Koniec
-
-	cout << "New synaptic weights after training: " << endl;
-	neural_net.print_synaptic_weights();
-	cout << endl;
-
-	cout << "Considering new situation [1,3]" << endl;
-	Matrix nowa;
-	nowa.add("[1,3]");
-	nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(0);
-	neural_net.print_classified();
-	cout << endl;
-
-	cout << "Considering [0,5]" << endl;
-	nowa.add("[0,5]");
-	nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(0);
-	neural_net.print_classified();
-	cout << endl;
-
-	cout << "Considering [0,12]" << endl;
-	nowa.add("[0,12]");
-	nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(0);
-	neural_net.print_classified();
-	cout << endl;
-
-	cout << "Considering [1,32]" << endl;
-	nowa.add("[1,32]");
-	nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(0);
-	neural_net.print_classified();
-	cout << endl;
-
-	cout << "Considering [0,1]" << endl;
-	nowa.add("[0,1]");
-	nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(0);
-	neural_net.print_classified();
-	cout << endl;
+	n.Think("[1,3]");
+	n.Think("[0,5]");
+	n.Think("[0,12]");
+	n.Think("[1,32]");
+	n.Think("[0,1]");
 }
 
 void Test2() {
-	bool sigm = 1;
-	//Network setup
-	NeuralNetwork neural_net(4, 3, 2);
-	cout << "Random starting synaptic weights: " << endl;
-	neural_net.print_synaptic_weights();
-	cout << endl << endl;
+	NeuNet n;
 
-	//Data setup
-	Matrix training_inputs;
-	training_inputs.add("[0,0,1,0][0,0,0,1] [1,1,1,0][0,1,1,1] [1,1,1,1] [0,0,1,1][0,1,1,0][0,1,0,0][1,0,1,1][1,1,0,1]");
-	if (sigm) training_inputs = training_inputs.sigmoid(); ///test
-	Matrix training_outputs;
-	training_outputs.add("[1,1,1,1,0,0,0,1,1,1] [0,0,1,1,1,1,1,0,1,1] [0,0,0,0,1,0,0,0,0,0]");
-	training_outputs = training_outputs.T();
+	n.input("[0,0,1,0][0,0,0,1] [1,1,1,0][0,1,1,1] [1,1,1,1] [0,0,1,1][0,1,1,0][0,1,0,0][1,0,1,1][1,1,0,1]");
+	n.output("[1,1,1,1,0,0,0,1,1,1] [0,0,1,1,1,1,1,0,1,1] [0,0,0,0,1,0,0,0,0,0]");
+	n.labels("[jeden][dwa][cztery]");
+	n.iterations(100000);
 
-	//Labels setup
-	neural_net.add_names("[jeden][dwa][cztery]");
+	n.Setup();
+	n.Train();
 
-	//////////Trening
-	std::clock_t start;
-	double durationTh;
-	cout << "Rozpoczynam trening..." << endl;
-	start = std::clock();
-
-	neural_net.train(training_inputs, training_outputs, 100000);
-
-	durationTh = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	cout << "Zakonczono pomyslnie w czasie: [" << durationTh << "] s" << endl << endl;
-	//////////Koniec
-
-	cout << "New synaptic weights after training: " << endl;
-	neural_net.print_synaptic_weights();
-	cout << endl << endl;
-
-
-	//Testowanie sieci
-	cout << "Considering  [1,0,1,1]" << endl;
-	Matrix nowa;
-	nowa.add("[1,0,1,1]");
-	if (sigm) nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(3);
-	neural_net.print_classified();
-	cout << endl;
-
-	cout << "Considering  [1,1,0,0]" << endl;
-	nowa.add("[1,1,0,0]");
-	if (sigm) nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(3);
-	neural_net.print_classified();
-	cout << endl;
-
-	cout << "Considering  [0,1,0,0]" << endl;
-	nowa.add("[0,1,0,0]");
-	if (sigm) nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(3);
-	neural_net.print_classified();
-	cout << endl;
-
-	cout << "Considering  [1,0,0,0]" << endl;
-	nowa.add("[1,0,0,0]");
-	if (sigm) nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(3);
-	neural_net.print_classified();
-	cout << endl;
-
-	cout << "Considering  [1,1,1,1]" << endl;
-	nowa.add("[1,1,1,1]");
-	if (sigm) nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(3);
-	neural_net.print_classified();
-	cout << endl;
-
-	cout << "Considering  [0,0,1,0]" << endl;
-	nowa.add("[0,0,1,0]");
-	if (sigm) nowa = nowa.sigmoid();
-	neural_net.think(nowa).print(3);
-	neural_net.print_classified();
-	cout << endl;
+	n.Think("[1,0,1,1]");
+	n.Think("[1,1,0,0]");
+	n.Think("[0,1,0,0]");
+	n.Think("[1,0,0,0]");
+	n.Think("[1,1,1,1]");
+	n.Think("[0,0,1,0]");
 }
 
 void Test3() {
@@ -1069,17 +953,9 @@ void Test3() {
 
 int main() {
 
-	Matrix a, b;
-	a.add("[1,2,3]");
-	b.add("[2,3,4]");
-	b = b.T();
 
-	a*b;
-
-	a.print();
-	
-	Test1();
-	//Test2();
+	//Test1();
+	Test2();
 
 	//Test3();
 
