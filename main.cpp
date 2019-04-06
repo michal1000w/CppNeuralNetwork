@@ -11,6 +11,7 @@ using namespace std;
 class Matrix {
 public:
 	friend class NeuralNetwork;
+	friend class NeuNet;
 	friend Matrix* operator += (const Matrix* lhs, const Matrix& rhs);
 	Matrix(unsigned int, unsigned int, double**);
 	Matrix(unsigned int, unsigned int);
@@ -583,8 +584,9 @@ Matrix Matrix::print(short roundness) {
 
 class NeuralNetwork{
 public:
+	friend class NeuNet;
 	NeuralNetwork(unsigned int,unsigned int, int seed = 1);
-	NeuralNetwork(unsigned int);
+	NeuralNetwork(unsigned int neuron_inputs = 0);
 	double drand(double, double);
 	void train(Matrix, Matrix, unsigned int);
 	Matrix think(Matrix);
@@ -707,6 +709,9 @@ NeuralNetwork::NeuralNetwork(unsigned int neuron_inputs) {
 	}
 	this->synaptic_weights->add(neuron_count, arr);
 
+	delete[] arr;
+	delete arr;
+
 	synaptic_weights = synaptic_weights->t();
 }
 
@@ -719,7 +724,114 @@ void NeuralNetwork::print_synaptic_weights() {
 	synaptic_weights->print();
 }
 
+class NeuNet {
+public:
+	//NeuNet(string, string, string, unsigned int, bool);
+	NeuNet(bool sigm = 1);
+	void input(string);
+	void output(string);
+	void labels(string);
+	void iterations(unsigned int);
+	bool Setup();
+	bool Train();
+	void Think(string);
+protected:
+	NeuralNetwork neural_net;
+	Matrix training_inputs;
+	Matrix training_outputs;
+	bool sigm;
+	bool setup;
+	unsigned int iteration;
+	string names;
+	string ID;
+};
 
+void NeuNet::Think(string data) {
+	cout << ID << "Considering new situation: " << data << endl;
+	Matrix nowa;
+	nowa.add(data);
+	if (this->sigm) nowa = nowa.sigmoid();
+	neural_net.think(nowa).print(0);
+	neural_net.print_classified();
+	cout << endl;
+}
+
+bool NeuNet::Train() {
+	cout << ID << "Starting Training..." << endl;
+	if (setup) {
+		std::clock_t start;
+		double durationTh;
+		cout << ID << "Iterations: " << this->iteration << endl;
+		start = std::clock();
+
+		neural_net.train(training_inputs, training_outputs, this->iteration);
+
+		durationTh = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+		cout << ID << "Succeeded in time: [" << durationTh << "] s" << endl << endl;
+
+		cout << "New synaptic weights after training: " << endl;
+		neural_net.print_synaptic_weights();
+		cout << endl << endl;
+	}
+	else {
+		cout << ID << "Training failed. (Try Setup first)" << endl;
+		return 0;
+	}
+}
+
+bool NeuNet::Setup() {
+	cout << ID << "Starting Setup..." << endl;
+	if (!(this->training_inputs.arrays == nullptr || this->training_outputs.arrays == nullptr || this->iteration == 0 || this->neural_net.nazwy.size() == 0)) {
+		cout << ID << "Setting up NeuralNetwork" << endl;
+		NeuralNetwork neur(this->training_inputs.liczba_elementow, this->training_outputs.liczba_elementow);
+		neur.add_names(this->names);
+		this->neural_net = neur;
+
+		cout << ID << "Random starting synaptic weights:" << endl;
+		this->neural_net.print_synaptic_weights();
+		cout << endl;
+		setup = 1;
+		return 1;
+	}
+	else {
+		cout << ID << "Setup failed" << endl;
+		return 0;
+	}
+}
+
+NeuNet::NeuNet(bool sigm) {
+	this->ID = "[NeuNet] ";
+	cout << ID << "Created instance" << endl;
+	this->sigm = sigm;
+	iteration = 0;
+	setup = 0;
+}
+
+void NeuNet::input(string training_data) {
+	cout << ID << "Adding training input" << endl;
+	this->training_inputs.add(training_data);
+
+	if (this->sigm) {
+		cout << ID << "Using sigmoid function on training input" << endl;
+		this->training_inputs = this->training_inputs.sigmoid();
+	}
+}
+
+void NeuNet::output(string training_output) {
+	cout << ID << "Adding training output" << endl;
+	this->training_outputs.add(training_output);
+	this->training_outputs = this->training_outputs.T();
+}
+
+void NeuNet::labels(string names) {
+	cout << ID << "Adding labels" << endl;
+	this->neural_net.add_names(names);
+	this->names = names;
+}
+
+void NeuNet::iterations(unsigned int iter) {
+	this->iteration = iter;
+}
 
 
 
@@ -748,7 +860,7 @@ void Test1() {
 	cout << "Rozpoczynam trening..." << endl;
 	start = std::clock();
 
-	neural_net.train(training_inputs, training_outputs, 100000);
+	neural_net.train(training_inputs, training_outputs, 1000000);
 
 	durationTh = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	cout << "Zakonczono pomyslnie w czasie: [" << durationTh << "] s" << endl << endl;
@@ -876,10 +988,27 @@ void Test2() {
 	cout << endl;
 }
 
+void Test3() {
+	NeuNet n;
+	n.input("[3,10][2.4,12][3.1,11] [9,0.1][9.5,3][9.2,2]");
+	n.output("[1,1,1,0,0,0] [0,0,0,1,1,1]");
+	n.labels("[japko][pomaranicz]");
+	n.iterations(1000000);
+
+	n.Setup();
+	n.Train();
+
+	n.Think("[1,13]");
+	n.Think("[5,15]");
+	n.Think("[10,1]");
+}
+
 int main() {
 	
 	Test1();
 	//Test2();
+
+	//Test3();
 
 	cout << endl;
 	_getch();
