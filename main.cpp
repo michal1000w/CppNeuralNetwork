@@ -154,6 +154,7 @@ Matrix* Matrix::t() {
 
 	Matrix* output = new Matrix(x, y, newArray);
 
+
 	return output;
 }
 
@@ -313,6 +314,12 @@ Matrix Matrix::operator *=(const Matrix& rhs) {
 		}
 	}
 
+	//czyszczenie
+	for (int i = 0; i < y; i++) delete[] rhs.arrays[i];
+	for (int i = 0; i < this->liczba_macierzy; i++) delete[] this->arrays[i];
+	delete[] this->arrays;
+	delete[] rhs.arrays;
+
 	return Matrix(this->liczba_macierzy, this->liczba_elementow, newArray);
 }
 
@@ -352,6 +359,12 @@ Matrix Matrix::operator *(const Matrix& rhs) {
 			//t--;
 			if (t == 0) break;
 		}
+
+		//czyszczenie
+		/*for (int i = 0; i < y2; i++) delete[] rhs.arrays[i];
+		for (int i = 0; i < y1; i++) delete[] this->arrays[i];
+		delete[] this->arrays;
+		delete[] rhs.arrays;*/
 
 		return Matrix(y1, x2, newArray);
 	}
@@ -1004,6 +1017,15 @@ void Test3() {
 }
 
 int main() {
+
+	Matrix a, b;
+	a.add("[1,2,3]");
+	b.add("[2,3,4]");
+	b = b.T();
+
+	a*b;
+
+	a.print();
 	
 	Test1();
 	//Test2();
