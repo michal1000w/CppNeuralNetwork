@@ -607,6 +607,9 @@ public:
 	void print_names();
 	void add_names(string);
 	void print_classified();
+
+	//eksperymentalne
+	Matrix dot(Matrix,Matrix);
 protected:
 	unsigned int neuron_count;
 	unsigned int neuron_inputs;
@@ -614,6 +617,53 @@ protected:
 	Matrix wynik;
 	vector <string> nazwy;
 };
+
+Matrix NeuralNetwork::dot(Matrix lhs, Matrix rhs) {
+	if (!(lhs.liczba_elementow == rhs.liczba_macierzy)) {
+		cout << "Nie mozna pomnozyc tych macierzy" << endl;
+		return Matrix(lhs.liczba_macierzy, lhs.liczba_elementow, lhs.arrays);
+	}
+	else {
+		int y1 = lhs.liczba_macierzy;
+		int x1 = lhs.liczba_elementow;
+		int y2 = rhs.liczba_macierzy;
+		int x2 = rhs.liczba_elementow;
+
+		double** newArray = new double*[y1];
+		for (int i = 0; i < y1; i++) {
+			newArray[i] = new double[x2];
+		}
+
+		double suma = 0;
+		int w, k, t;
+		w = k = 0;
+		t = rhs.liczba_elementow * lhs.liczba_macierzy;
+		int t1 = t;
+
+		while (t > 0) {
+			suma = 0;
+			for (int i = 0; i < x1; i++) {
+				suma += lhs.arrays[w][i] * rhs.arrays[i][k];
+			}
+
+			newArray[w][k] = suma;
+
+			k = (k + 1) % x2;
+			t--;
+			if (t%x2 == 0 && t != t1 && w < (y1 - 1)) w++;
+			//t--;
+			if (t == 0) break;
+		}
+
+		//czyszczenie
+		for (int i = 0; i < y2; i++) delete[] rhs.arrays[i];
+		for (int i = 0; i < y1; i++) delete[] lhs.arrays[i];
+		delete[] lhs.arrays;
+		delete[] rhs.arrays;
+
+		return Matrix(y1, x2, newArray);
+	}
+}
 
 void NeuralNetwork::print_classified() {
 	unsigned int klasy = this->neuron_count;
@@ -667,7 +717,8 @@ void NeuralNetwork::train(Matrix training_inputs, Matrix training_outputs, unsig
 		//error.print();
 
 
-		adjustment = training_inputs.T() * (output.sigmoid_derivative() *= error);
+		//adjustment = training_inputs.T() * (output.sigmoid_derivative() *= error);
+		adjustment = dot(training_inputs.T(), (output.sigmoid_derivative() *= error));  //zjada mniej ramu
 
 		//cout << "Adjustment" << endl;
 		//adjustment.print();
