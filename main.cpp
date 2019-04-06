@@ -43,12 +43,17 @@ public:
 	Matrix operator * (const Matrix* rhs);
 	Matrix operator * (const double& rhs);
 	Matrix operator *= (const Matrix& rhs);
+	void operator delete(void* ptr);
 private:
 	void initMatrix();
 	unsigned int liczba_macierzy;
 	unsigned int liczba_elementow;
 	double** arrays;
 };
+
+void Matrix::operator delete(void* ptr) {
+	delete (ptr);
+}
 
 double** Matrix::getArray() {
 	unsigned int y = this->liczba_macierzy;
@@ -661,6 +666,7 @@ Matrix NeuralNetwork::dot(Matrix lhs, Matrix rhs) {
 		delete[] lhs.arrays;
 		delete[] rhs.arrays;
 
+
 		return Matrix(y1, x2, newArray);
 	}
 }
@@ -705,26 +711,27 @@ void NeuralNetwork::train(Matrix training_inputs, Matrix training_outputs, unsig
 	Matrix output(3);
 	Matrix error(3);
 	Matrix adjustment(3);
+
+	unsigned int modulo = 5 * (iterations / 100);
+
+	cout << " [ ";
+
 	for (unsigned int i = 0; i < iterations; i++) {
+
+		if (i%modulo == 0) cout << (i * 100) / iterations << "%  ";
+
 		output = this->think(training_inputs);
 
-		//cout << "Output: " << endl;
-		//output.print();
-
 		error = training_outputs - output;
-
-		//cout << "Error: " << endl;
-		//error.print();
-
 
 		//adjustment = training_inputs.T() * (output.sigmoid_derivative() *= error);
 		adjustment = dot(training_inputs.T(), (output.sigmoid_derivative() *= error));  //zjada mniej ramu
 
-		//cout << "Adjustment" << endl;
-		//adjustment.print();
 
 		synaptic_weights += adjustment;
 	}
+
+	cout << " 100% ] " << endl;
 }
 
 Matrix NeuralNetwork::think(Matrix inputs) {
@@ -952,12 +959,12 @@ void Test3() {
 }
 
 int main() {
+	cerr.sync_with_stdio(false);
 
+	//Test1();  //zu¿ywa najwiêcej ramu
+	//Test2();
 
-	//Test1();
-	Test2();
-
-	//Test3();
+	Test3();
 
 	cout << endl;
 	_getch();
