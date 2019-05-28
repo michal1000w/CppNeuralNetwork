@@ -1,6 +1,12 @@
 #include <iostream>
 #include <cmath>
+
+#ifdef WIN_32
 #include <conio.h>
+#else
+#include <stdarg.h>
+#endif
+
 #include <ctime>
 #include <vector>
 #include <string>
@@ -17,6 +23,7 @@ public:
 	Matrix(unsigned int, unsigned int);
 	Matrix(unsigned int);
 	Matrix();
+	Matrix(Matrix*);
 	void add(const double*, ...);
 	void add(unsigned int, ...);
 	void add(string);
@@ -27,7 +34,7 @@ public:
 
 	double** getArray();
 
-	//funkcjonalnoœæ pod AI
+	//funkcjonalnoï¿½ï¿½ pod AI
 	Matrix expa(bool inverted = 0);
 	Matrix sigmoid();
 	Matrix sigmoid_derivative();
@@ -43,6 +50,11 @@ public:
 	Matrix operator * (const Matrix* rhs);
 	Matrix operator * (const double& rhs);
 	Matrix operator *= (const Matrix& rhs);
+
+	//nowe
+	Matrix operator = (const Matrix& rhs);
+
+	//te juÅ¼ nie
 	void operator delete(void* ptr);
 private:
 	void initMatrix();
@@ -50,6 +62,24 @@ private:
 	unsigned int liczba_elementow;
 	double** arrays;
 };
+
+Matrix Matrix::operator = (const Matrix& rhs){ //do przemyÅ›lenia na nowo
+	//for (unsigned int i = 0; i < this->liczba_macierzy; i++)
+		//delete[] this->arrays[i];
+	//delete[] this->arrays;
+
+	this->liczba_macierzy = rhs.liczba_macierzy;
+	this->liczba_elementow = rhs.liczba_elementow;
+	this->arrays = rhs.arrays;
+
+	return Matrix(this);
+}
+
+Matrix::Matrix(Matrix* nowa){
+	this->liczba_macierzy = nowa->liczba_macierzy;
+	this->liczba_elementow = nowa->liczba_elementow;
+	this->arrays = nowa->arrays;
+}
 
 void Matrix::operator delete(void* ptr) {
 	delete (ptr);
@@ -471,36 +501,59 @@ void Matrix::add(unsigned int count, ...) {
 	unsigned int j = 0;
 
 	va_list argument;
+	#ifdef WIN_32
 	__crt_va_start(argument, count);
+	#else
+	va_start(argument,count);
+	#endif
 	for (int i = 0; i < count; i++) {
 
+		#ifdef WIN_32
 		arg = __crt_va_arg(argument, double*);
+		#else
+		arg = va_arg(argument, double*);
+		#endif
+
 		for (int i = 0; i < this->liczba_elementow; i++) {
 			this->arrays[j][i] = arg[i];
 		}
 		j++;
 
 	}
+
+	#ifdef WIN_32
 	__crt_va_end(argument);
+	#else
+	va_end(argument);
+	#endif
 }
 
 void Matrix::add(const double *macierz, ...) {
 	unsigned int j = 0;
 	va_list arguments;
+	#ifdef WIN_32
 	for (__crt_va_start(arguments, macierz); macierz != NULL && j < this->liczba_macierzy; macierz = __crt_va_arg(arguments, const double*)) {
+	#else
+		for (va_start(arguments, macierz); macierz != NULL && j < this->liczba_macierzy; macierz = va_arg(arguments, const double*)) {
+	#endif
 
 		for (int i = 0; i < this->liczba_elementow; i++) {
 			this->arrays[j][i] = macierz[i];
 		}
 		j++;
 
-	} __crt_va_end(arguments);
+	}
+	#ifdef WIN_32
+	__crt_va_end(arguments);
+	#else
+	va_end(arguments);
+	#endif
 }
 
 void Matrix::add(string macierz) {
 	//"[1,2,1.4][3,9,3][41,2,55]"
 
-	//Podzia³ na pojedyñcze macierze (fragmenty)
+	//Podziaï¿½ na pojedyï¿½cze macierze (fragmenty)
 	unsigned int len = macierz.length();
 	string fragment = "";
 	vector <string> fragmenty;
@@ -522,13 +575,13 @@ void Matrix::add(string macierz) {
 
 	this->liczba_macierzy = fragmenty.size();
 
-	//Podzia³ fragmentów na pojedyñcze elementy i sprawdzenie iloœci elementów
+	//Podziaï¿½ fragmentï¿½w na pojedyï¿½cze elementy i sprawdzenie iloï¿½ci elementï¿½w
 	vector <double> wartosci;
 	short elementy = 0;
 
 	for (int i = 0; i < this->liczba_macierzy; i++) {
-		len = fragmenty[i].size(); //d³ugoœæ stringa
-		
+		len = fragmenty[i].size(); //dï¿½ugoï¿½ï¿½ stringa
+
 		for (int j = 0; j < len; j++) {
 			fragment = "";
 			while (fragmenty[i][j] != ',' && j < len) {
@@ -548,7 +601,7 @@ void Matrix::add(string macierz) {
 	//Inicjowanie nowej macierzy typu Matrix
 	this->initMatrix();
 
-	//Przenoszenie elementów z vector do macierzy typu Matrix
+	//Przenoszenie elementï¿½w z vector do macierzy typu Matrix
 	int i = 0;
 	for (int y = 0; y < this->liczba_macierzy; y++) {
 		for (int x = 0; x < this->liczba_elementow; x++) {
@@ -557,7 +610,7 @@ void Matrix::add(string macierz) {
 		}
 	}
 
-	//czyszczenie pamiêci
+	//czyszczenie pamiï¿½ci
 	fragmenty.clear();
 	wartosci.clear();
 }
@@ -689,7 +742,7 @@ void NeuralNetwork::print_names() {
 }
 
 void NeuralNetwork::add_names(string input) {
-	//Podzia³ na pojedyñcze macierze (fragmenty)
+	//Podziaï¿½ na pojedyï¿½cze macierze (fragmenty)
 	unsigned int len = input.length();
 	string fragment = "";
 
@@ -719,6 +772,7 @@ void NeuralNetwork::train(Matrix training_inputs, Matrix training_outputs, unsig
 	for (unsigned int i = 0; i < iterations; i++) {
 
 		if (i%modulo == 0) cout << (i * 100) / iterations << "%  ";
+		cout << flush;
 
 		output = this->think(training_inputs);
 
@@ -847,6 +901,7 @@ bool NeuNet::Train() {
 		cout << ID << "Training failed. (Try Setup first)" << endl;
 		return 0;
 	}
+	return 0;
 }
 
 bool NeuNet::Setup() {
@@ -961,11 +1016,14 @@ void Test3() {
 int main() {
 	cerr.sync_with_stdio(false);
 
-	//Test1();  //zu¿ywa najwiêcej ramu
+	//Test1();  //zuï¿½ywa najwiï¿½cej ramu
 	//Test2();
 
 	Test3();
 
 	cout << endl;
+
+	#ifdef WIN_32
 	_getch();
+	#endif
 }
