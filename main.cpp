@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
 
-#ifdef WIN_32
+#ifdef _WIN32
 #include <conio.h>
 #else
 #include <stdarg.h>
@@ -509,14 +509,14 @@ void Matrix::add(unsigned int count, ...) {
 	unsigned int j = 0;
 
 	va_list argument;
-	#ifdef WIN_32
+	#ifdef _WIN32
 	__crt_va_start(argument, count);
 	#else
 	va_start(argument,count);
 	#endif
 	for (int i = 0; i < count; i++) {
 
-		#ifdef WIN_32
+		#ifdef _WIN32
 		arg = __crt_va_arg(argument, double*);
 		#else
 		arg = va_arg(argument, double*);
@@ -529,7 +529,7 @@ void Matrix::add(unsigned int count, ...) {
 
 	}
 
-	#ifdef WIN_32
+	#ifdef _WIN32
 	__crt_va_end(argument);
 	#else
 	va_end(argument);
@@ -539,7 +539,7 @@ void Matrix::add(unsigned int count, ...) {
 void Matrix::add(const double *macierz, ...) {
 	unsigned int j = 0;
 	va_list arguments;
-	#ifdef WIN_32
+	#ifdef _WIN32
 	for (__crt_va_start(arguments, macierz); macierz != NULL && j < this->liczba_macierzy; macierz = __crt_va_arg(arguments, const double*)) {
 	#else
 		for (va_start(arguments, macierz); macierz != NULL && j < this->liczba_macierzy; macierz = va_arg(arguments, const double*)) {
@@ -551,7 +551,7 @@ void Matrix::add(const double *macierz, ...) {
 		j++;
 
 	}
-	#ifdef WIN_32
+	#ifdef _WIN32
 	__crt_va_end(arguments);
 	#else
 	va_end(arguments);
@@ -1031,7 +1031,7 @@ int main() {
 
 	cout << endl;
 
-	#ifdef WIN_32
+	#ifdef _WIN32
 	_getch();
 	#endif
 }
