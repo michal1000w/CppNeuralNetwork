@@ -31,6 +31,7 @@ public:
 	Matrix print(short);
 	Matrix T();
 	Matrix* t();
+	void clear();
 
 	double** getArray();
 
@@ -55,7 +56,7 @@ public:
 	Matrix operator = (const Matrix& rhs);
 
 	//te już nie
-	void operator delete(void* ptr);
+	//void operator delete(void* ptr);
 private:
 	void initMatrix();
 	unsigned int liczba_macierzy;
@@ -63,10 +64,17 @@ private:
 	double** arrays;
 };
 
+void Matrix::clear(){
+	for (int i = 0; i < liczba_macierzy; i++)
+		delete [] this->arrays[i];
+	delete [] this->arrays;
+}
+
 Matrix Matrix::operator = (const Matrix& rhs){ //do przemyślenia na nowo
 	//for (unsigned int i = 0; i < this->liczba_macierzy; i++)
 		//delete[] this->arrays[i];
 	//delete[] this->arrays;
+	//this->clear();
 
 	this->liczba_macierzy = rhs.liczba_macierzy;
 	this->liczba_elementow = rhs.liczba_elementow;
@@ -81,9 +89,9 @@ Matrix::Matrix(Matrix* nowa){
 	this->arrays = nowa->arrays;
 }
 
-void Matrix::operator delete(void* ptr) {
+/*void Matrix::operator delete(void* ptr) {
 	delete (ptr);
-}
+}*/
 
 double** Matrix::getArray() {
 	unsigned int y = this->liczba_macierzy;
